@@ -91,12 +91,26 @@
       '<div>Googleフォームを開いています…</div>';
 
     // Googleフォームの事前入力URLを作る
-    const url =
-      FORM_URL +
-      "?usp=pp_url&" +
-      ENTRY_ID +
-      "=" +
-      encodeURIComponent(decodedText);
+    // QRコードの内容
+// 「https://」を取り除いて型式だけにする
+let modelNumber = decodedText;
+
+if (modelNumber.startsWith("https://")) {
+  modelNumber = modelNumber.substring(8);
+}
+
+if (modelNumber.startsWith("http://")) {
+  modelNumber = modelNumber.substring(7);
+}
+
+
+// Googleフォームの事前入力URLを作る
+const url =
+  FORM_URL +
+  "?usp=pp_url&" +
+  ENTRY_ID +
+  "=" +
+  encodeURIComponent(modelNumber);
 
     // Googleフォームへ移動
     setTimeout(function() {

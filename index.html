@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,7 +20,7 @@
 
     h1 {
       font-size: 24px;
-      margin: 10px 0 8px;
+      margin: 10px 0;
     }
 
     .message {
@@ -65,66 +66,119 @@
     QRコードを待っています…
   </div>
 
+
 <script>
 
+  // ==========================================
   // Googleフォーム
+  // ==========================================
+
   const FORM_URL =
     "https://docs.google.com/forms/d/e/1FAIpQLSerNbY2mMFuPOy1--fW9aAPNQeHGrK75NdfRRY05qSp-ALiPg/viewform";
 
-  // 「型式(部品ID)」の項目番号
+
+  // 「型式(部品ID)」の項目
   const ENTRY_ID =
     "entry.991633788";
 
 
+  // ==========================================
   // QRコードを読み取ったとき
-  function onScanSuccess(decodedText) {
+  // ==========================================
 
-    // 読み取り停止
-    html5QrcodeScanner.clear();
+  function onScanSuccess(decodedText, decodedResult) {
 
-    // 読み取った文字を表示
+    // ------------------------------------------
+    // QRコードの文字を取得
+    // ------------------------------------------
+
+    let modelNumber = decodedText.trim();
+
+
+    // ------------------------------------------
+    // 「https://」を削除
+    // ------------------------------------------
+
+    if (modelNumber.toLowerCase().startsWith("https://")) {
+
+      modelNumber = modelNumber.substring(8);
+
+    }
+
+
+    // ------------------------------------------
+    // 「http://」も念のため削除
+    // ------------------------------------------
+
+    if (modelNumber.toLowerCase().startsWith("http://")) {
+
+      modelNumber = modelNumber.substring(7);
+
+    }
+
+
+    // ------------------------------------------
+    // 読み取り結果を画面に表示
+    // ------------------------------------------
+
     document.getElementById("result").innerHTML =
       '<div class="success">読み取り成功！</div>' +
       '<br>' +
-      '<div>' + escapeHtml(decodedText) + '</div>' +
-      '<br>' +
+      '<div>型式：</div>' +
+      '<strong>' + escapeHtml(modelNumber) + '</strong>' +
+      '<br><br>' +
       '<div>Googleフォームを開いています…</div>';
 
-    // Googleフォームの事前入力URLを作る
-    // QRコードの内容
-// 「https://」を取り除いて型式だけにする
-let modelNumber = decodedText;
 
-if (modelNumber.startsWith("https://")) {
-  modelNumber = modelNumber.substring(8);
-}
+    // ------------------------------------------
+    // QRスキャナー停止
+    // ------------------------------------------
 
-if (modelNumber.startsWith("http://")) {
-  modelNumber = modelNumber.substring(7);
-}
+    html5QrcodeScanner.clear().catch(function(error) {
+      console.log(error);
+    });
 
 
-// Googleフォームの事前入力URLを作る
-const url =
-  FORM_URL +
-  "?usp=pp_url&" +
-  ENTRY_ID +
-  "=" +
-  encodeURIComponent(modelNumber);
+    // ------------------------------------------
+    // GoogleフォームのURLを作成
+    // ------------------------------------------
 
+    const formUrl =
+      FORM_URL +
+      "?usp=pp_url&" +
+      ENTRY_ID +
+      "=" +
+      encodeURIComponent(modelNumber);
+
+
+    // ------------------------------------------
     // Googleフォームへ移動
+    // ------------------------------------------
+
     setTimeout(function() {
-      window.location.href = url;
+
+      window.location.href = formUrl;
+
     }, 800);
+
   }
 
 
-  // 読み取り中のエラーは表示しない
+  // ==========================================
+  // QR読み取りエラー
+  // ==========================================
+
   function onScanFailure(error) {
+
+    // 読み取り中のエラーは表示しません
+
   }
 
 
-  // 文字を安全に表示する
+  // ==========================================
+  // HTML特殊文字対策
+  // ==========================================
+
   function escapeHtml(text) {
 
     const div = document.createElement("div");
@@ -132,10 +186,14 @@ const url =
     div.textContent = text;
 
     return div.innerHTML;
+
   }
 
 
-  // QR読み取り開始
+  // ==========================================
+  // QRスキャナー起動
+  // ==========================================
+
   const html5QrcodeScanner =
     new Html5QrcodeScanner(
       "reader",
@@ -165,4 +223,5 @@ const url =
 </script>
 
 </body>
+
 </html>
